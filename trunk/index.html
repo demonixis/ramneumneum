@@ -1,8 +1,12 @@
 <!doctype html>
-<html lang="fr">
+<html lang="fr" manifest="neum.appcache">
 <head>
 <meta charset="utf-8">
 <title>Ram Neum Neum</title>
+<meta property="og:url" content="http://www.demonixis.net/gdp2/" />
+<meta property="og:image" content="http://www.demonixis.net/gdp2/title-background.jpg" />
+<meta property="og:type" content="website" />
+<meta property="og:locale" content="fr_FR" />
 <link href="http://fonts.googleapis.com/css?family=Gochi+Hand" rel="stylesheet" type="text/css" />
 <link rel="stylesheet" href="css/styles.css" media="all" type="text/css" />
 </head>
@@ -11,7 +15,6 @@
 		<canvas id="gameCanvas" width="800" height="600"></canvas>
 	</div>
 	
-	<!-- 
 	<audio id="sounds_getCherry"> 
 		<source src="sounds/get-cherry.ogg" type="audio/ogg" />
 		<source src="sounds/get-cherry.mp3" type="audio/mpeg" />
@@ -22,11 +25,6 @@
 		<source src="sounds/push-cherry.mp3" type="audio/mpeg" />
 	</audio>
 	
-	<audio id="sounds_oui"> 
-		<source src="sounds/oui.ogg" type="audio/ogg" />
-		<source src="sounds/oui.mp3" type="audio/mpeg" />
-	</audio>
-
 	<audio id="sounds_pop"> 
 		<source src="sounds/pop.ogg" type="audio/ogg" />
 		<source src="sounds/pop.mp3" type="audio/mpeg" />
@@ -36,7 +34,16 @@
 		<source src="sounds/ouille.ogg" type="audio/ogg" />
 		<source src="sounds/ouille.mp3" type="audio/mpeg" />
 	</audio>
-	-->
+	
+	<audio id="sounds_win"> 
+		<source src="sounds/win.ogg" type="audio/ogg" />
+		<source src="sounds/win.mp3" type="audio/mpeg" />
+	</audio>
+	
+	<audio id="sounds_loose"> 
+		<source src="sounds/loose.ogg" type="audio/ogg" />
+		<source src="sounds/loose.mp3" type="audio/mpeg" />
+	</audio>
 	
 	<script src="js/vendor/jaws-min.js"></script>
 	<script src="js/vendor/THREEx.js"></script>
@@ -56,7 +63,7 @@
 				// HUD
 				var scoreBg = new jaws.Sprite({x : 15, y : 15, image : Neum.Constants.IMG_SCORE_BG});
 				var timerSprite = new jaws.Sprite({x : 13, y : 490, image : Neum.Constants.IMG_TIMER, scale:0.25});
-				var timerTimeSprite = new jaws.Sprite({x : 50, y : 330, image : Neum.Constants.IMG_TIME_TIMER, scale:0.25, anchor:"center"});
+				var timerTimeSprite = new jaws.Sprite({x : 50, y : 330, image : Neum.Constants.IMG_TIME_TIMER, scale:0.25, anchor:"center", angle: -38.57});
 				var background =  new jaws.Sprite({x : 0, y : 0, image : Neum.Constants.IMG_BACKGROUND_1 });
 				var cherry = new jaws.Sprite({image : Neum.Constants.IMG_CHERRY });
 				var levelSprite = new jaws.Sprite({x: 590, y: 15, image : Neum.Constants.IMG_LEVEL_BG});
@@ -83,6 +90,8 @@
 				// Pour debug
 				var mouseRect = new jaws.Rect(50, 50, 8, 8);
 				
+				var playPushCherry = true;
+				var playGetCherry = false;
 				this.setup = function() {
 					jaws.preventDefaultKeys(["z", "q", "s", "d", "up", "down", "left", "right", "space"]);
 					blocks = new jaws.SpriteList();
@@ -138,6 +147,8 @@
 								// Set a new spawn for the cherry
 								this.randomizeCherry();
 								
+								timer = Neum.Constants.GAME_DURATION;
+								timerTimeSprite.angle = -38.57;
 								victory = false;
 							}else{
 								// No more levels : victory! \o/
@@ -219,6 +230,7 @@
 // 						cherryScaledDown = true;
 // 					}
 
+
 					// Cherry handling
 					if(collide && Neum.Context.mouseHelper.dragging){
 						// Center the cherry on the player
@@ -227,9 +239,19 @@
 						
 						draggingCherry = true;
 						player.setSpeed(Neum.Constants.PLAYER_SPEED_LOW);
+						if(!playGetCherry){
+							Neum.Context.soundHelper.play(Neum.Constants.SND_GET_CHERRY);
+							playGetCherry = true;
+							playPushCherry = false;
+						}
 					}else{
 						draggingCherry = false;
 						player.setSpeed(Neum.Constants.PLAYER_SPEED_NORMAL);
+						if(!playPushCherry){
+							Neum.Context.soundHelper.play(Neum.Constants.SND_PUSH_CHERRY);
+							playPushCherry = true;
+							playGetCherry = false;
+						}
 					}
 					
 					// Victory flag
@@ -240,30 +262,24 @@
 
 				this.draw = function() {
 					jaws.clear();
-					background.draw();
-					
-					//viewport.apply(function() {
+					//background.draw(); // <--- bad idea for perfs to draw bg as a sprite!
+					jaws.context.drawImage(jaws.assets.get(Neum.Constants.IMG_BACKGROUND_1), 0, 0);
 	
 					player.draw();
 					enemyList.draw();
-					//});
 					
 					// Reticule
 					mouseRect.draw();
 					
 					// Cherry
 					cherryDropZone.draw();
-					cherryDropZone.rect().draw();
 					cherry.draw();
-					cherry.rect().draw();
 					
 					jaws.context.textAlign = "center";
-					jaws.context.font = "bold 45px 'Gochi Hand'";
-					jaws.context.fillStyle = "#4500fe";
-					jaws.context.fillText(timer, jaws.width / 2, 100);
 
 					// HUD
-					scoreBg.draw();
+					//scoreBg.draw(); // better to draw this as an image
+					jaws.context.drawImage(jaws.assets.get(Neum.Constants.IMG_SCORE_BG), 15, 15);
 					var menuAngle = Neum.Context.geomHelper.degreeToRadian(Neum.Constants.TEXT_ANGLE);
 					jaws.context.rotate(-menuAngle);
 					jaws.context.font = "bold 25px 'Gochi Hand'";
@@ -292,15 +308,16 @@
 				}
 				
 				this.randomizeCherry = function(){
+					var padding = 50;
 					var cw = Neum.Constants.CHERRY_SIZE;
-					var cx = Neum.RandomHelper(1, jaws.width - cw);
-					var cy = Neum.RandomHelper(1, jaws.height - cw);
+					var cx = Neum.RandomHelper(padding, jaws.width - cw - padding*2);
+					var cy = Neum.RandomHelper(padding, jaws.height - cw - padding*2);
 					cherry.setX(cx);
 					cherry.setY(cy);
 					
 					var dzw = Neum.Constants.CHERRY_ZONE_SIZE;
-					var cdzx = Neum.RandomHelper(1, jaws.width - dzw);
-					var cdzy = Neum.RandomHelper(1, jaws.height - dzw);
+					var cdzx = Neum.RandomHelper(padding, jaws.width - dzw - padding*2);
+					var cdzy = Neum.RandomHelper(padding, jaws.height - dzw - padding*2);
 					cherryDropZone.x = cdzx;
 					cherryDropZone.y = cdzy;
 				}
@@ -317,13 +334,13 @@
 					anchor: "center"});
 
 				this.setup = function() {
-					jaws.preventDefaultKeys(["z", "q", "s", "d", "space"]);
+					jaws.preventDefaultKeys(["q", "d", "space"]);
 
-					jaws.on_keydown([ "down" ], function(e) {
+					jaws.on_keydown([ "down", "z"], function(e) {
 						menuHelper.update(1);
 					});
 					
-					jaws.on_keydown([ "up" ], function(e) {
+					jaws.on_keydown([ "up", "s"], function(e) {
 						menuHelper.update(-1);
 					});
 
@@ -340,8 +357,10 @@
 						jaws.switchGameState(PlayState);
 						break;
 					case 1:
+						jaws.switchGameState(HighscoreState);
 						break;
 					case 2:
+						jaws.switchGameState(DLCState);
 						break;
 					}
 				}
@@ -388,6 +407,8 @@
 					max = cloudPos + 20;
 					cloudScale = startScale;
 					alpha = 1;
+					askForScore();
+					Neum.Context.soundHelper.play(Neum.Constants.SND_LOOSE);
 				}
 
 				this.update = function() {
@@ -442,6 +463,121 @@
 				
 				this.setup = function() {
 					jaws.preventDefaultKeys(["z", "q", "s", "d", "space"]);
+					askForScore();
+					Neum.Context.soundHelper.play(Neum.Constants.SND_WIN);
+					jaws.on_keydown(["t"], function(e){
+						window.open(encodeURI("https://twitter.com/intent/tweet?original_referer="+Neum.Constants.URL+"&text=J'ai fait un score de ouf sur Ram Neum Neum : " + Neum.Context.score + " points!&url="+Neum.Constants.URL), "Partager mon score sur Ram Neum Neum", "width=450, height=250");
+					});
+					
+					jaws.on_keydown(["f"], function(e){
+						window.open(encodeURI("https://www.facebook.com/sharer/sharer.php?u=" + Neum.Constants.URL), "Partager mon score sur Ram Neum Neum", "width=450, height=250");
+					});
+				}
+
+				this.update = function() {
+					if(jaws.pressed("space")){
+						jaws.start(MenuState);
+					}
+					
+				}
+				
+				this.draw = function() {
+					jaws.context.clearRect(0, 0, jaws.width, jaws.height);
+					
+					background.draw();
+					
+					jaws.context.textAlign = "center";
+					jaws.context.fillStyle = "#FD5BDD";
+					
+					jaws.context.font = "bold 55px 'Gochi Hand'";
+					jaws.context.fillText(Neum.Context.score, 170, 400);
+					
+					jaws.context.font = "bold 20px 'Gochi Hand'";
+					jaws.context.fillText("Appuyez sur ESPACE pour retourner au menu", jaws.width / 2, jaws.height - 10);
+				}
+			}
+			
+			function DLCState(){
+				var background = new jaws.Sprite({x:0,y:0,image:Neum.Constants.IMG_DLC});
+				var background2 = new jaws.Sprite({x: 0, y: 0, image: Neum.Constants.IMG_HOME_BG});
+				
+				var dlcTimer = 0;
+				var showBird = true;
+				var alpha = 1;
+				
+				this.setup = function() {
+					jaws.preventDefaultKeys(["z", "q", "s", "d", "space"]);
+					Neum.Context.durationHelper.initializeTimer();
+				}
+
+				this.update = function() {
+					if(jaws.pressed("space")){
+						jaws.start(MenuState);
+					}
+					
+					var elapsedTime = Neum.Context.durationHelper.getElapsedTime();
+					dlcTimer += elapsedTime;
+
+					if(dlcTimer >= Neum.Constants.GAME_CREDIT_TIME){
+						if(alpha > 0){
+							alpha -= 0.02;
+							if(alpha < 0){
+								showBird = false;
+							}
+						}
+					}
+					background.alpha = alpha;
+				}
+				
+				this.draw = function() {
+					jaws.context.clearRect(0, 0, jaws.width, jaws.height);
+					
+					background2.draw();
+					
+					//#FD9705"
+					//: "#FD5BDD";
+					
+					jaws.context.fillStyle = "#FD5BDD";
+					jaws.context.textAlign = "center";
+					jaws.context.font = "bold 100px 'Gochi Hand'";
+					jaws.context.fillText("Ram Neum Neum", jaws.width / 2, 100);
+
+
+					jaws.context.font = "bold 28px 'Gochi Hand'";
+					jaws.context.fillStyle = "#FD9705";
+					jaws.context.fillText("Développé en un week-end pour la Gamedevparty #2 par", jaws.width / 2, 180);
+
+					jaws.context.fillStyle = "#FD5BDD";
+					jaws.context.textAlign = "left";
+					jaws.context.font = "bold 30px 'Gochi Hand'";
+					
+					var y = 280;
+					var yPadd = 55;
+					jaws.context.fillText("Alex Frêne : code / idée", 100, y);
+					jaws.context.fillText("Agnès Haasser : code / illustrations", 100, y+=yPadd);
+					jaws.context.fillText("Kévin Kerisit : illustrations", 100, y+=yPadd);
+					jaws.context.fillText("Thomas Ruffier : design", 100, y+=yPadd);
+					jaws.context.fillText("Yannick Comte : code", 100, y+=yPadd);
+
+					jaws.context.textAlign = "center";
+					if(showBird){
+						background.draw();
+						jaws.context.fillStyle = "rgba(0, 0, 0, "+alpha+")";
+						jaws.context.font = "bold 120px 'Gochi Hand'";
+						jaws.context.fillText("?", 350, 100);
+					}
+
+					jaws.context.fillStyle = "#000000";
+					jaws.context.font = "bold 20px 'Gochi Hand'";
+					jaws.context.fillText("Appuyez sur ESPACE pour retourner au menu", jaws.width / 2, jaws.height - 10);
+				}
+			}
+			
+			function HighscoreState(){
+				var background = new jaws.Sprite({x:0,y:0,image:Neum.Constants.IMG_HOME_BG});
+				
+				this.setup = function() {
+					jaws.preventDefaultKeys(["z", "q", "s", "d", "space"]);
 				}
 
 				this.update = function() {
@@ -455,30 +591,62 @@
 					
 					background.draw();
 					
+					jaws.context.fillStyle = "#FD5BDD";
 					jaws.context.textAlign = "center";
-					jaws.context.font = "bold 65px 'Gochi Hand'";
+					jaws.context.font = "bold 100px 'Gochi Hand'";
+					jaws.context.fillText("Ram Neum Neum", jaws.width / 2, 100);
+					
+					jaws.context.textAlign = "center";
 					jaws.context.fillStyle = "#FD5BDD";
 					
-					jaws.context.font = "bold 55px 'Gochi Hand'";
-					jaws.context.fillText(Neum.Context.score, 170, 400);
+					jaws.context.font = "bold 30px 'Gochi Hand'";
 					
+					var startY = 250;
+					var yPadd = 50;
+					var noScore = true;
+					for(i = 0, l = Neum.Context.highScores.length; i<l; i++){
+						var data = Neum.Context.highScores[i];
+						if(data != undefined){
+							noScore = false;
+							jaws.context.fillText(data.pseudo + " : " + data.score, 250, startY+=yPadd);
+						}
+					}
+					
+					if(noScore){
+						jaws.context.fillText(" Pas encore de scores! :'(", 250, startY+=yPadd);
+					}
 					
 					jaws.context.font = "bold 20px 'Gochi Hand'";
 					jaws.context.fillText("Appuyez sur ESPACE pour retourner au menu", jaws.width / 2, jaws.height - 10);
 				}
 			}
+			
+			this.askForScore = function(){
+				var pseudo = prompt("Entrez votre nom");
+				
+				if(pseudo == '' || pseudo == null){
+					pseudo = "Joueur";
+				}
+				
+				var highscore = {score : Neum.Context.score, pseudo : pseudo};
 
-			function launchGame() {
-				jaws.start(PlayState, {fps: 60});
+				var newHighscore = new Array(6);
+				newHighscore[0] = highscore;
+				for(i = 0, l = Neum.Context.highScores.length; i<l; i++){
+					newHighscore[i+1] = Neum.Context.highScores[i];
+				}
+				newHighscore.sort();
+				for(i = 0, l = Neum.Context.highScores.length; i<l; i++){
+					Neum.Context.highScores[i] = newHighscore[i];
+				}
 			}
-			 
+			
 			window.onload = function() {
 				jaws.assets.add([ 
 					Neum.Constants.IMG_ANIM_CUISTOT,
 					Neum.Constants.IMG_ANIM_LARDON,
 					Neum.Constants.IMG_ANIM_MACARON,
 					Neum.Constants.IMG_ANIM_PAINEPICE,
-					Neum.Constants.IMG_BLOCK,
 					Neum.Constants.IMG_PLAYER,
 					Neum.Constants.IMG_BULLET,
 					Neum.Constants.IMG_ENEMY1,

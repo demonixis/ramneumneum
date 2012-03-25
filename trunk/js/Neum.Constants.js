@@ -2,11 +2,10 @@ var Neum = window.Neum || {};
 Neum.Constants = Neum.Constants || {};
 
 (function() {
-	Neum.Constants.IMG_ANIM_CUISTOT = "imagesani/player.png";
+	Neum.Constants.IMG_ANIM_CUISTOT = "images/player.png";
 	Neum.Constants.IMG_ANIM_LARDON = "images/lardon-4dir.png";
 	Neum.Constants.IMG_ANIM_MACARON = "images/macaron-4dir.png";
 	Neum.Constants.IMG_ANIM_PAINEPICE = "images/painepice-4dir.png";
-	Neum.Constants.IMG_BLOCK = "images/block.png";
 	Neum.Constants.IMG_PLAYER = "images/player.png";
 	Neum.Constants.IMG_BULLET = "images/bullet.png";
 	Neum.Constants.IMG_ENEMY1 = "images/lardon_face.png";
@@ -25,6 +24,8 @@ Neum.Constants = Neum.Constants || {};
 	Neum.Constants.IMG_CHERRY_DROP_ZONE = 'images/incrustation-cerise.png';
 	Neum.Constants.IMG_LEVEL_BG = 'images/nbvie.png';
 	Neum.Constants.IMG_VICTORY = 'images/victoire.jpg';
+	Neum.Constants.IMG_DLC = 'images/dlc.jpg';
+	
 	Neum.Constants.PLAYER_SHOOT_SPEEDY = 100;
 	Neum.Constants.PLAYER_SHOOT_SPEED = 2000;
 	Neum.Constants.PLAYER_SHOOT_LOW = 4000;
@@ -47,17 +48,24 @@ Neum.Constants = Neum.Constants || {};
 	Neum.Constants.CHERRY_SIZE = 32;
 	Neum.Constants.FREEZE_TIME = 1000;
 	Neum.Constants.END_GAME_TIME = 1000;
+	Neum.Constants.GAME_CREDIT_TIME = 5000;
 	
 	Neum.Constants.TIMER_ANGLE = 1.2857;
 	Neum.Constants.TEXT_ANGLE = 6.83;
 	
-	Neum.Constants.GAME_DURATION = 60000;
+	Neum.Constants.GAME_DURATION = 30000;
 	
 	Neum.Constants.CANVAS_WIDTH = 800;
 	Neum.Constants.CANVAS_HEIGHT = 600;
 	
-	Neum.Constants.SND_PLOK1 = 'sounds_plok1';
-	Neum.Constants.SND_PLOK2 = 'sounds_plok2';
-	Neum.Constants.SND_PLOK3 = 'sounds_plok3';
+	Neum.Constants.MOUSE_OFFSET = 71;
+	
+	Neum.Constants.SND_GET_CHERRY = 'sounds_getCherry';
+	Neum.Constants.SND_PUSH_CHERRY = 'sounds_pushCherry';
+	Neum.Constants.SND_POP = 'sounds_pop';
 	Neum.Constants.SND_OUILLE = 'sounds_ouille';
+	Neum.Constants.SND_WIN = 'sounds_win';
+	Neum.Constants.SND_LOOSE = 'sounds_loose';
+	
+	Neum.Constants.URL = "http://www.demonixis.fr/gdp2/";
 })();

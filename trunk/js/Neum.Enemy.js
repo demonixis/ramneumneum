@@ -1,11 +1,15 @@
 var Neum = window.Neum || {};
-
 (function() {
 	Neum.EnemyList = function() {
 		var listEnemy = new jaws.SpriteList();
 
 		this.addEnemy = function (type, player)
 		{
+			// limit maximal number of enemies to keep playability
+			var maxEnemies = 10;
+			if (listEnemy.length >= maxEnemies) {
+				return;
+			}
 			var sprite, image, speed, animation;
 
 			var spriteWidth = 0;
@@ -122,6 +126,7 @@ var Neum = window.Neum || {};
 					listEnemy.sprites[i].setImage(listEnemy.sprites[i].animUp.next());
 				}
 			}
+			
 		}
 
 		this.checkCollideWithPlayer = function (player) {
@@ -145,7 +150,10 @@ var Neum = window.Neum || {};
 		}
 
 		this.draw = function () {
-			listEnemy.draw();
+			//listEnemy.draw();
+			for (var i = 0; i < listEnemy.length ; i++) {
+				listEnemy.sprites[i].draw();
+			}
 		}
 
 		this.getList = function () { return listEnemy; }

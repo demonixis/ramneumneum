@@ -5,11 +5,25 @@ var Neum = window.Neum || {};
 		return (Math.floor(Math.random() * max) + min);
 	}
 
+	Neum.RecordLocalScore = function (pseudo) {
+		var lsName = "neum_" + pseudo;
+		var aScore = localStorage[lsName];
+		if (typeof aScore == "object" && aScore.length >= 5) {
+			scores.pop();
+		}
+		else if (typeof aScore != "object") {
+			aScore = new Array();
+		}
+
+		aScore.push(Neum.Context.score);
+		localStorage.setItem(lsName, aScore);
+		return true;
+	}
+
 	Neum.MenuHelper = function(items) {
 		this.items = items;
 		var index = 0;
 		var size = this.items.length;
-
 
 		this.update = function(value) {
 			index += value;
@@ -58,7 +72,7 @@ var Neum = window.Neum || {};
 		if (typeEvent == "move")
 		{
 			this.x = jaws.mouse_x;
-			this.y = jaws.mouse_y;
+			this.y = jaws.mouse_y - Neum.Constants.MOUSE_OFFSET;
 			if (this.clicked) {
 				this.dragging = true;
 			} else {

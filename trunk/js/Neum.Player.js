@@ -1,5 +1,4 @@
 var Neum = window.Neum || {};
-
 (function() {
 	Neum.Player = function(x, y) {
 		var sprite = new jaws.Sprite({x: x, y: y });
@@ -68,8 +67,8 @@ var Neum = window.Neum || {};
 			}
 			this.bulletList.deleteIf(function(sprite) {
 				return sprite.x <= 0 
-					|| sprite.x + sprite.width > jaws.width
 					|| sprite.y < 0
+					|| sprite.x + sprite.width > jaws.width
 					|| sprite.y + sprite.height > jaws.height
 			});
 			
@@ -79,7 +78,10 @@ var Neum = window.Neum || {};
 
 		this.draw = function () {
 			sprite.draw();
-			this.bulletList.draw();
+			for (var i = 0 ; i < this.bulletList.length ; i++) {
+				this.bulletList.sprites[i].draw();
+			}
+			//this.bulletList.draw();
 		}
 
 		this.shoot = function()
@@ -92,6 +94,7 @@ var Neum = window.Neum || {};
 				var bullet = new jaws.Sprite({x: pos.x, y: pos.y, image: Neum.Constants.IMG_BULLET, angle: angle});
 				this.bulletList.push(bullet);
 				setTimeout(function (t) { canShoot = true; }, shootInterval);
+				Neum.Context.soundHelper.play(Neum.Constants.SND_POP);
 			}
 		}
 
@@ -101,6 +104,7 @@ var Neum = window.Neum || {};
 				freezeTime = 0;
 				sprite.alpha = 0.5;
 				Neum.Context.freezeTimer.initializeTimer();
+				Neum.Context.soundHelper.play(Neum.Constants.SND_OUILLE);
 			}
 		}
 		this.isFreezed = function(){ return freezed; }
