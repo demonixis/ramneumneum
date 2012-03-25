@@ -1,0 +1,19 @@
+#game {
+	text-align: center;
+	background-image:url(../images/title-background.jpg);
+	background-position:center top;
+}
+
+#gameCanvas {
+	widht:800px;
+	height:600px;
+	margin: 0 auto;
+	padding-top: 71px;
+	padding-bottom: 540px;
+	
+}
+body {
+	margin:0;
+	padding:0;
+	background-color:#fed001;
+}
